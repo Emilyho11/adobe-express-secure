@@ -13,6 +13,8 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^3.5.0",
+    "axios": "^1.7.7",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18"

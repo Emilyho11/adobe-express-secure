@@ -5,5 +5,9 @@
   ],
   "plugins": [
     "eslint-plugin-next-on-pages"
-  ]
+  ],
+  "rules": {
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"]
+  }
 }
