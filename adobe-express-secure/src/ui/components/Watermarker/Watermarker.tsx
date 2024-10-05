@@ -17,6 +17,7 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
   const [opacity, setOpacity] = useState<number>(0.25);
   const [xGap, setXGap] = useState<number>(50);
   const [yGap, setYGap] = useState<number>(50);
+  const [randomness, setRandomness] = useState<number>(0.5);
 
   useEffect(() => {
     async function updateDimensions() {
@@ -110,6 +111,21 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
           step={10}
           change={(value) => setYGap((value as any).target.__value)}
         ></Slider>
+
+        <Slider
+          label="Randomness"
+          value={randomness}
+          editable={true}
+          min={0.1}
+          max={1}
+          step={0.1}
+          format-options='{
+            "style": "percent"
+        }'
+          change={(value) => {
+            setRandomness((value as any).target.__value);
+          }}
+        ></Slider>
       </div>
 
       <p>Step 4: Review and apply the watermark.</p>
@@ -134,6 +150,7 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
           xGap={xGap}
           yGap={yGap}
           opacity={opacity}
+          randomness={randomness}
         />
       ) : (
         <p style={{ fontStyle: "italic" }}>

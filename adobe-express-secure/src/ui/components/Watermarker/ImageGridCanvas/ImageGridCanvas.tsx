@@ -10,6 +10,7 @@ interface ImageGridCanvasProps {
   xGap: number;
   yGap: number;
   opacity: number;
+  randomness: number; // 0 is no randomness, 1 is max randomness, min is 0.1
 }
 
 const ImageGridCanvas: React.FC<ImageGridCanvasProps> = ({
@@ -21,6 +22,7 @@ const ImageGridCanvas: React.FC<ImageGridCanvasProps> = ({
   xGap,
   yGap,
   opacity,
+  randomness,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -50,7 +52,17 @@ const ImageGridCanvas: React.FC<ImageGridCanvasProps> = ({
         transformCanvasWithRandom(ctx, width, height, opacity);
       };
     }
-  }, [imageFile, width, height, rows, columns, xGap, yGap, opacity]);
+  }, [
+    imageFile,
+    width,
+    height,
+    rows,
+    columns,
+    xGap,
+    yGap,
+    opacity,
+    randomness,
+  ]);
 
   function transformCanvasWithRandom(ctx, width, height, opacity) {
     const imageData = ctx.getImageData(0, 0, width, height);
@@ -58,9 +70,12 @@ const ImageGridCanvas: React.FC<ImageGridCanvasProps> = ({
     for (var i = 0; i < data.length; i += 4) {
       // if pixel isn't transparent
       if (data[i + 3] > 0) {
-        data[i] = (data[i] + Math.floor(Math.random() * 256)) % 255;
-        data[i + 1] = (data[i + 1] + Math.floor(Math.random() * 256)) % 255;
-        data[i + 2] = (data[i + 2] + Math.floor(Math.random() * 256)) % 255;
+        data[i] =
+          (data[i] + Math.floor(Math.random() * 256) * randomness) % 255;
+        data[i + 1] =
+          (data[i + 1] + Math.floor(Math.random() * 256) * randomness) % 255;
+        data[i + 2] =
+          (data[i + 2] + Math.floor(Math.random() * 256) * randomness) % 255;
         // update opacity
         data[i + 3] = Math.floor(data[i + 3] * opacity);
       }
