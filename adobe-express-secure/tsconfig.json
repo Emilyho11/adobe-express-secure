@@ -1,14 +1,13 @@
 {
     "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "outDir": "./dist",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true
+        "allowJs": false,
+        "allowSyntheticDefaultImports": true,
+        "jsx": "react",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "outDir": "dist",
+        "target": "ESNext"
     },
-    "include": ["src/**/*.ts"],
-    "exclude": ["node_modules"]
-  }
-  
+    "exclude": ["node_modules"],
+    "include": ["src/**/*"]
+}
