@@ -16,8 +16,9 @@
     ],
     "dependencies": {
         "@swc-react/accordion": "^0.48.1",
-        "@swc-react/button": "0.39.4",
-        "@swc-react/theme": "0.39.4",
+        "@swc-react/button": "^0.48.1",
+        "@swc-react/slider": "^0.48.1",
+        "@swc-react/theme": "^0.48.1",
         "react": "18.2.0",
         "react-dom": "18.2.0"
     },

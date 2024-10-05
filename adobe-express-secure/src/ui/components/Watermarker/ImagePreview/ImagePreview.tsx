@@ -11,11 +11,7 @@ function ImagePreview({ file }: ImagePreviewProps) {
       {file && (
         <img
           src={file ? URL.createObjectURL(file) : ""}
-          style={{
-            width: "80%",
-            height: "auto",
-            placeSelf: "center",
-          }}
+          className="preview-image"
         />
       )}
       <p style={file ? { fontWeight: "bold" } : { fontStyle: "italic" }}>

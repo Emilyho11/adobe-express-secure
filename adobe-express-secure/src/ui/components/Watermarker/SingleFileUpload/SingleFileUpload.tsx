@@ -45,7 +45,7 @@ const SingleFileUpload: React.FC<SingleFileUploadProps> = ({
         id="fileInput"
       />
       <label htmlFor="fileInput">
-        <Button variant="cta">Upload</Button>
+        <Button variant="accent">Upload</Button>
       </label>
       <p>or drag and drop image here</p>
     </div>

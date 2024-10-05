@@ -39,8 +39,8 @@ const App = ({
           Add Rectangle
         </Button> */}
         <Accordion>
-          <AccordionItem label="Watermarking">
-            <Watermarker></Watermarker>
+          <AccordionItem label="Watermarking" open={true}>
+            <Watermarker addOnUISdk={addOnUISdk}></Watermarker>
           </AccordionItem>
           <AccordionItem label="Encrypted Export">
             <p>Section 2 content</p>
