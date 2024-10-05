@@ -22,3 +22,8 @@ export async function GET(request: NextRequest) {
 
   return new Response(JSON.stringify(res))
 }
+
+
+export async function POST(request: NextRequest) {
+    
+}

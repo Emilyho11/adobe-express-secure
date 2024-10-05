@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -9,7 +11,8 @@ const DocumentsPage: React.FC = () => {
         const fetchCards = async () => {
             try {
                 const response = await axios.get('/api/documents');
-                setCards(response.data);
+                console.log('Fetched docs:', response.data);
+                // setCards(response.data);
             } catch (error) {
                 console.error('Error fetching docs:', error);
             } finally {
