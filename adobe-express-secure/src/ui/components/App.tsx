@@ -14,6 +14,8 @@ import { AddOnSDKAPI } from "https://new.express.adobe.com/static/add-on-sdk/sdk
 import { Theme } from "@swc-react/theme";
 import { Accordion, AccordionItem } from "@swc-react/accordion";
 
+import Watermarker from "./Watermarker/Watermarker";
+
 const App = ({
   addOnUISdk,
   sandboxProxy,
@@ -38,7 +40,7 @@ const App = ({
         </Button> */}
         <Accordion>
           <AccordionItem label="Watermarking">
-            <p>Section 1 content</p>
+            <Watermarker></Watermarker>
           </AccordionItem>
           <AccordionItem label="Encrypted Export">
             <p>Section 2 content</p>
