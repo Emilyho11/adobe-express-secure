@@ -42,9 +42,6 @@ const App = ({
           <AccordionItem label="Watermarking" open={true}>
             <Watermarker addOnUISdk={addOnUISdk}></Watermarker>
           </AccordionItem>
-          <AccordionItem label="Encrypted Export">
-            <p>Section 2 content</p>
-          </AccordionItem>
           <AccordionItem label="Secure Upload">
             <p>Section 3 content</p>
           </AccordionItem>
