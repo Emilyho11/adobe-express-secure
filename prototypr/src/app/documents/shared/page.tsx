@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import Image from "next/image";
+import ShareModal from "@/components/ShareModal";
 
 const Page = () => {
 	const [file, setFile] = useState<File | null>(null);
@@ -34,17 +35,17 @@ const Page = () => {
 	useEffect(() => {
 		const fetchDocuments = async () => {
 			try {
-				const response: Response = await axios.get("/api/documents");
+				const response = await axios.get("/api/shared-documents");
 				const accId = "ff7c031cc454a7c324e821d0f6fa850d";
 				const bucket = `https://${accId}.r2.cloudflarestorage.com/https-secsuite-docs/`;
-				const docs = response.data.map((doc, i) => {
-					return {
-						url: bucket + doc.Key,
-						name: doc.Key,
-						id: i,
-					};
-				});
-				console.log(docs);
+				// const docs = response.data.map((doc, i) => {
+				// 	return {
+				// 		url: bucket + doc.Key,
+				// 		name: doc.Key,
+				// 		id: i,
+				// 	};
+				// });
+				const docs = response.data;
 				setDocuments(docs);
 			} catch (error) {
 				console.error("Failed to get documents", error);
@@ -85,7 +86,7 @@ const Page = () => {
 					method: "PUT",
 					body: file,
 				});
-				console.log(uploadRes);
+
 				if (uploadRes.ok) {
 					setMessage("File Upload Successful!");
 				} else {
@@ -253,125 +254,205 @@ const Page = () => {
 	};
 
 	return (
-		<PanelGroup direction="horizontal">
-			<Panel defaultSize={50} className="h-screen p-20 pr-40 flex-1">
-				<h1 className="mt-10 mb-5 text-2xl text-center">
-					View All Uploads
-				</h1>
-				<div className="w-full flex flex-wrap gap-4 justify-center">
-					{documents.map((document_item) => {
-						const extension = document_item.name.split(".").pop();
+		<>
 
-						const fileName = document_item.name
-							.split(".")
-							.slice(0, -1)
-							.join(".");
-
-						let icon = null;
-
-						switch (extension) {
-							case "pdf":
-							case "docx":
-								icon = <LucideFileText />;
-								break;
-
-							case "png":
-							case "jpg":
-							case "jpeg":
-								icon = <LucideFileImage />;
-								break;
-
-							default:
-								icon = <LucideFileQuestion />;
-								break;
-						}
-
-						return (
-							<button
-								key={document_item.name}
-								className=""
-								onClick={() => {
-									if (
-										selectedDocument === document_item.name
-									) {
-										setSelectedDocument(null);
-										// Clear the preview
-										const preview = document.getElementById(
-											"preview"
-										) as HTMLImageElement;
-										preview.src = "";
-
-										return;
-									}
-
-									setSelectedDocument(document_item.name);
-									// downloadFile(document.name)
-									previewFile(document_item.name);
+			<div className="flex flex-col items-center justify-center gap-4 w-full">
+				<PanelGroup direction="horizontal">
+					<Panel
+						defaultSize={50}
+						minSize={20}
+						className="h-screen p-20 pr-40 flex-1"
+					>
+						<div
+							style={{
+								textAlign: "center",
+								marginBottom: "20px",
+							}}
+							className="flex items-center justify-evenly p-4 rounded-md"
+						>
+							<div
+								style={{
+									display:
+										message || fileUrl ? "block" : "none",
 								}}
 							>
-								<Card
-									key={document_item.id}
-									// className="min-w-[15vw]  mb-5 p-5 relative"
-									className={
-										"w-full p-2 px-4 " +
-										(selectedDocument === document_item.name
-											? "bg-blue-300"
-											: "")
-									}
-								>
-									<div className="flex gap-4 item-center">
-										<div className="border-r-2 border-gray-400 pr-4">
-											{icon}
-											<p className="">{extension}</p>
-										</div>
-										<p className="text-center">
-											{fileName}
-										</p>
+								{message && <p>{message}</p>}
+								{fileUrl && (
+									<div className="mt-10 items-center flex justify-center ">
+										{file?.type.startsWith("image/") ? (
+											<div className="">
+												<p>Preview</p>
+												<Image
+													key={fileUrl}
+													src={fileUrl}
+													width={350}
+													height={200}
+													sizes="100vw"
+													alt="Selected file"
+													style={{
+														maxWidth: "100%",
+														maxHeight: "400px",
+													}}
+												/>
+											</div>
+										) : (
+											<>
+												<a
+													href={fileUrl}
+													download={file?.name}
+												>
+													Download
+												</a>
+											</>
+										)}
 									</div>
-								</Card>
-							</button>
-						);
-					})}
-				</div>
-			</Panel>
-			<PanelResizeHandle />
-			<Panel defaultSize={50} className=" bg-black flex flex-col">
-				<PanelGroup direction="vertical">
-					<Panel defaultSize={70} maxSize={85} className="w-full">
-						<iframe id="preview" src="" className="w-full h-full" />
+								)}
+							</div>
+						</div>
+						<h1 style={{ marginBottom: "10px" }}>
+							View All Uploads
+						</h1>
+						<div className="w-full flex flex-wrap gap-4 justify-center">
+							{documents.map((document_item) => {
+								if (!document_item) return;
+								console.log(document_item);
+								const extension = document_item.name
+									.split(".")
+									.pop();
+
+								const fileName = document_item.name
+									.split(".")
+									.slice(0, -1)
+									.join(".");
+
+								let icon = null;
+
+								switch (extension) {
+									case "pdf":
+									case "docx":
+										icon = <LucideFileText />;
+										break;
+
+									case "png":
+									case "jpg":
+									case "jpeg":
+										icon = <LucideFileImage />;
+										break;
+
+									default:
+										icon = <LucideFileQuestion />;
+										break;
+								}
+
+								return (
+									<button
+										key={document_item.name}
+										className=""
+										onClick={async () => {
+											if (
+												selectedDocument ===
+												document_item.name
+											) {
+												setSelectedDocument(null);
+												// Clear the preview
+												const preview =
+													document.getElementById(
+														"preview"
+													) as HTMLImageElement;
+												preview.src = "";
+
+												return;
+											}
+
+											// Fetch the file and preview it
+											setSelectedDocument(document_item);
+											// downloadFile(document.name)
+											previewFile(document_item.name);
+										}}
+									>
+										<Card
+											key={document_item.id}
+											// className="min-w-[15vw]  mb-5 p-5 relative"
+											className={
+												"w-full p-2 px-4 " +
+												(selectedDocument &&
+												selectedDocument.name ===
+													document_item.name
+													? "!bg-blue-300"
+													: "")
+											}
+										>
+											<div className="flex gap-4 item-center">
+												<div className="border-r-2 border-gray-400 pr-4">
+													{icon}
+													<p className="">
+														{extension}
+													</p>
+												</div>
+												<p className="text-center">
+													{fileName}
+												</p>
+											</div>
+										</Card>
+									</button>
+								);
+							})}
+						</div>
 					</Panel>
 					<PanelResizeHandle />
 					<Panel
-						defaultSize={40}
-						className="items-center flex flex-col justify-center gap-2 "
+						defaultSize={50}
+						minSize={20}
+						className=" bg-black flex flex-col"
 					>
-						<h1>{selectedDocument}</h1>
-						<div className="flex gap-4">
-							<Button
-								className="flex gap-4"
-								variant={"secondary"}
-								onClick={handleDownload}
+						<PanelGroup direction="vertical">
+							<Panel
+								defaultSize={70}
+								maxSize={85}
+								className="w-full"
 							>
-								<LucideDownload /> Download
-							</Button>
-							<Button
-								className="flex gap-4"
-								variant={"secondary"}
-								onClick={handleUpdate}
+								<iframe
+									id="preview"
+									src=""
+									className="w-full h-full border-b-2 border-gray-500"
+								/>
+							</Panel>
+							<PanelResizeHandle />
+							<Panel
+								defaultSize={40}
+								className="items-center flex flex-col justify-center gap-2 "
 							>
-								<LucidePencil /> Update
-							</Button>
-							<Button
-								className="flex gap-4"
-								variant={"secondary"}
-							>
-								<LucideMessageCircle /> Comments
-							</Button>
-						</div>
+								<h1>
+									{selectedDocument
+										? selectedDocument.name
+										: ""}
+								</h1>
+								<div className="flex gap-4">
+									<Button
+										className="flex gap-4"
+										variant={"secondary"}
+									>
+										<LucideDownload /> Download
+									</Button>
+									<Button
+										className="flex gap-4"
+										variant={"secondary"}
+									>
+										<LucidePencil /> Update
+									</Button>
+									<Button
+										className="flex gap-4"
+										variant={"secondary"}
+									>
+										<LucideMessageCircle /> Comments
+									</Button>
+								</div>
+							</Panel>
+						</PanelGroup>
 					</Panel>
 				</PanelGroup>
-			</Panel>
-		</PanelGroup>
+			</div>
+		</>
 	);
 };
 

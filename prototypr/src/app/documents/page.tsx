@@ -27,8 +27,8 @@ const Page = () => {
 	const [newComment, setNewComment] = useState("");
 	const [showCommentBox, setShowCommentBox] = useState(false);
 	const [isSelectedDocument, setIsSelectedDocument] = useState(false);
+
 	const [selectedDocument, setSelectedDocument] = useState<string | null>();
-	const [selectedDocumentName, setSelectedDocumentName] = useState<string | null>();
 	const [updatingDocument, setUpdatingDocument] = useState<string | null>();
 
 	interface Response {
@@ -40,36 +40,68 @@ const Page = () => {
 		const fetchDocuments = async () => {
 			try {
 				const response: Response = await axios.get("/api/documents");
-				const accId = "ff7c031cc454a7c324de821d0f6fa850d";
+				const accId = "ff7c031cc454a7c324e821d0f6fa850d";
 				const bucket = `https://${accId}.r2.cloudflarestorage.com/https-secsuite-docs/`;
-				const docs = response.data.map((doc, i) => {
-					return {
-						url: bucket + doc.Key,
-						name: doc.Key,
-						id: i,
-					};
-				});
-				console.log(docs);
-                setDocuments(docs);
-            } catch (error) {
-                console.error("Failed to get documents", error);
-            }
-        };
+				// const docs = response.data.map((doc, i) => {
+				// 	return {
+				// 		url: bucket + doc.Key,
+				// 		name: doc.Key,
+				// 		id: i,
+				// 	};
+				// });
+				// console.log(docs)
+				const docs = response.data;
+				setDocuments(docs);
+			} catch (error) {
+				console.error("Failed to get documents", error);
+			}
+		};
 
-		fetchComments();
 		fetchDocuments();
 	}, []);
 
 	const fetchComments = async () => {
-		if (!selectedDocument) return;
+		// if (!selectedDocument) return;
+		console.log("selectedDocument", selectedDocument);
+		
+		const same = documents.find((doc) => doc.name === selectedDocument);
+		console.log("same", same);
+		
+
 		try {
-			const response = await axios.get(`/api/comments?docId=${selectedDocument}`);
-			setComments(response.data);
+			const response = await axios.get(`/api/comments?docId=${selectedDocument.docId}`);
 			console.log("comments", response.data);
+			setComments(response.data);
 		} catch (error) {
 			console.error("Failed to get comments", error);
 		}
 	};
+
+	const handleAddComment = async () => {
+        if (!newComment.trim()) {
+            alert("Comment cannot be empty");
+            return;
+        }
+
+		if (!selectedDocument) {
+			alert("No document selected");
+			return;
+		}
+
+        try {
+            const response = await axios.post("/api/comments", {
+                docId: selectedDocument.docId,
+                text: newComment,
+            });
+            const newCommentData = response.data;
+            setComments(newCommentData)
+            setNewComment('');
+            setShowCommentBox(false);
+        } catch (error) {
+            console.error("Error adding comment:", error);
+            alert("Failed to add comment");
+        }
+    };
 
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const selectedFile = event.target.files?.[0];
@@ -93,8 +125,6 @@ const Page = () => {
 			const res = await axios.post("/api/documents/upload", {
 				filename: file.name,
 			});
-
-			console.log(res.data);
 
 			if (res.data) {
 				const { url }: { url: string } = res.data;
@@ -175,33 +205,6 @@ const Page = () => {
 		}
 	};
 
-	const handleAddComment = async () => {
-        if (!newComment.trim()) {
-            alert("Comment cannot be empty");
-            return;
-        }
-
-		if (!selectedDocument) {
-			alert("No document selected");
-			return;
-		}
-
-        try {
-            const response = await axios.post("/api/comments", {
-                docId: selectedDocument,
-                text: newComment,
-            });
-            const newCommentData = response.data;
-            setComments(newCommentData)
-            setNewComment('');
-            setShowCommentBox(false);
-        } catch (error) {
-            console.error("Error adding comment:", error);
-            alert("Failed to add comment");
-        }
-    };
-
-
 	const previewFile = async (docname: string) => {
 		try {
 			const response = await axios.post(
@@ -226,7 +229,6 @@ const Page = () => {
 			if (preview) {
 				preview.src = url;
 			}
-
 			fetchComments();
 		} catch (error) {
 			console.error("Error downloading file:", error);
@@ -292,7 +294,7 @@ const Page = () => {
 
 	const handleDownload = () => {
 		if (selectedDocument) {
-			selectedDocumentName && downloadFile(selectedDocumentName);
+			downloadFile(selectedDocument);
 		} else {
 			console.error("No document selected");
 		}
@@ -300,7 +302,7 @@ const Page = () => {
 
 	return (
 		<PanelGroup direction="horizontal">
-			<Panel defaultSize={50} className="h-screen p-20 pr-40 flex-1">
+			<Panel defaultSize={50} className="h-screen p-20 flex-1">
 				<div
 					style={{ textAlign: "center", marginBottom: "20px" }}
 					className="flex items-center justify-evenly p-4 rounded-md"
@@ -318,13 +320,16 @@ const Page = () => {
 
 					<div
 						style={{
-							display: message || fileUrl ? "block" : "none",
+							display:
+								message.length > 0 || fileUrl
+									? "block"
+									: "none",
 						}}
 					>
 						{message && <p>{message}</p>}
 						{fileUrl && (
 							<div className="mt-10 items-center flex justify-center ">
-								{file?.type.startsWith("image/") ? (
+								{file?.type.startsWith("image/") && (
 									<div className="">
 										<p>Preview</p>
 										<Image
@@ -340,12 +345,6 @@ const Page = () => {
 											}}
 										/>
 									</div>
-								) : (
-									<>
-										<a href={fileUrl} download={file?.name}>
-											Download
-										</a>
-									</>
 								)}
 							</div>
 						)}
@@ -356,6 +355,7 @@ const Page = () => {
 				</h1>
 				<div className="w-full flex flex-wrap gap-4 justify-center">
 					{documents.map((document_item) => {
+						if (!document_item || !document_item.name) return;
 						const extension = document_item.name.split(".").pop();
 
 						const fileName = document_item.name
@@ -388,10 +388,9 @@ const Page = () => {
 								className=""
 								onClick={() => {
 									if (
-										selectedDocumentName === document_item.name
+										selectedDocument === document_item.name
 									) {
 										setSelectedDocument(null);
-										setSelectedDocumentName(null);
 										// Clear the preview
 										const preview = document.getElementById(
 											"preview"
@@ -400,11 +399,9 @@ const Page = () => {
 
 										return;
 									}
-
-									setSelectedDocument(document_item.id.toString());
-									setSelectedDocumentName(document_item.name);
+									console.log(document_item);
+									setSelectedDocument(document_item);
 									// downloadFile(document.name)
-									setIsSelectedDocument(true);
 									previewFile(document_item.name);
 								}}
 							>
@@ -413,8 +410,8 @@ const Page = () => {
 									// className="min-w-[15vw]  mb-5 p-5 relative"
 									className={
 										"w-full p-2 px-4 " +
-										(selectedDocumentName === document_item.name
-											? "bg-blue-300"
+										(selectedDocument && selectedDocument.name === document_item.name
+											? "!bg-blue-300"
 											: "")
 									}
 								>
@@ -436,15 +433,23 @@ const Page = () => {
 			<PanelResizeHandle />
 			<Panel defaultSize={50} className=" bg-black flex flex-col">
 				<PanelGroup direction="vertical">
-					<Panel defaultSize={70} maxSize={85} className="w-full">
-						<iframe id="preview" src="" className="w-full h-full" />
+					<Panel
+						defaultSize={70}
+						maxSize={85}
+						className="w-full border-b-2 border-red-800"
+					>
+						<iframe
+							id="preview"
+							src=""
+							className="w-full h-full block ml-auto mr-auto"
+						/>
 					</Panel>
 					<PanelResizeHandle />
 					<Panel
 						defaultSize={40}
 						className="items-center flex flex-col justify-center gap-2 "
 					>
-						<h1>{selectedDocumentName}</h1>
+						<h1>{selectedDocument ? selectedDocument.name : ""}</h1>
 						<div className="flex gap-4 flex-wrap place-content-center">
 							<Button
 								className="flex gap-4"
@@ -481,9 +486,9 @@ const Page = () => {
 								<Button onClick={handleAddComment} className="bg-red-500">Submit</Button>
 							</div>
 						)}
-						
+
 					</div>
-					{isSelectedDocument && (
+					{selectedDocument && (
 						<div>
 							<h3 className="text-white pt-5">Comments</h3>
 							<ul className="text-white">
@@ -493,6 +498,7 @@ const Page = () => {
 							</ul>
 						</div>
 					)}
+			
 					</Panel>
 				</PanelGroup>
 			</Panel>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { LucideFolderDot, LucideHome, LucideShare } from "lucide-react";
 import Login from "./login";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
 	const { user, isLoading } = useUser();
@@ -36,6 +37,7 @@ const Navbar = () => {
 			icon: <LucideHome />,
 		},
 	};
+	const pathname = usePathname();
 	return (
 		<>
 			<div
@@ -52,11 +54,19 @@ const Navbar = () => {
 				<nav>
 					<ul className="space-y-4">
 						{Object.keys(navbarLinks).map((link) => {
+							const isCurrentPage =
+								pathname === navbarLinks[link].href;
+
 							return (
 								<li key={link} className="">
 									<a
 										href={navbarLinks[link].href}
-										className="hover:text-blue-500 text-xl flex gap-2 items-center"
+										className={
+											"hover:text-blue-500 text-xl flex gap-2 items-center " +
+											(isCurrentPage
+												? "text-blue-500"
+												: "")
+										}
 									>
 										{navbarLinks[link].icon}
 										{navbarLinks[link].name}

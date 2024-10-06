@@ -27,6 +27,9 @@ export async function GET(request: NextRequest) {
             .from(comments)
             .where(eq(comments.docId, docId))
             .orderBy(comments.timestamp);
+        
+        console.log("Comments:", documentComments);
+        
 
         return NextResponse.json(documentComments);
     } catch (error) {

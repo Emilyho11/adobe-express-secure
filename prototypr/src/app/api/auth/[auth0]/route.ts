@@ -1,4 +1,10 @@
-import { getSession, handleAuth, handleCallback } from "@auth0/nextjs-auth0";
+import {
+	getSession,
+	handleAuth,
+	handleCallback,
+} from "@auth0/nextjs-auth0/edge";
+
+export const runtime = "edge";
 
 export const GET = handleAuth({
 	async callback(req, res) {
