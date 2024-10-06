@@ -16,6 +16,11 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Starting backend
+- Run `cd prototypr`
+- Run `npm run db:generate`. If this gives issues, delete the migrations folder
+- Run `npm run db:migrate:local`
+
 ## Cloudflare integration
 
 Besides the `dev` script mentioned above `c3` has added a few extra scripts that allow you to integrate the application with the [Cloudflare Pages](https://pages.cloudflare.com/) environment, these are:

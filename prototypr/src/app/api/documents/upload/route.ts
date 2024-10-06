@@ -21,10 +21,10 @@ export async function POST(request: NextRequest) {
 		// Sanitize email for use in path
 		const sanitizedEmail = session.user.email.replace(/[^a-zA-Z0-9-_@.]/g, "_");
 		const prefixedFilename = `${sanitizedEmail}/${filename}`;
-
 		const context = getRequestContext();
 		const db = drizzle(context.env.DB);
 
+		console.log("prefixedFilename", prefixedFilename);
 		// Insert document record
 		const newDoc = await db.insert(docs)
 			.values({
@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
 			})
 			.returning()
 			.get();
-
-
+			
+			
 		const url = await getSignedUrl(
 			S3,
 			new PutObjectCommand({

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "60e3b280-d251-4dd3-a144-617f68114df0",
+  "id": "dcc1af8f-56cb-431d-a563-d1d663fcd482",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "Audit": {
@@ -45,14 +45,14 @@
         },
         "actor": {
           "name": "actor",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "recipient": {
           "name": "recipient",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -120,13 +120,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "timestamp": {
           "name": "timestamp",
           "type": "integer",
@@ -135,9 +128,9 @@
           "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         },
-        "userId": {
-          "name": "userId",
-          "type": "integer",
+        "user": {
+          "name": "user",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -165,12 +158,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Comments_userId_Users_email_fk": {
-          "name": "Comments_userId_Users_email_fk",
+        "Comments_user_Users_email_fk": {
+          "name": "Comments_user_Users_email_fk",
           "tableFrom": "Comments",
           "tableTo": "Users",
           "columnsFrom": [
-            "userId"
+            "user"
           ],
           "columnsTo": [
             "email"
@@ -206,8 +199,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "folder": {
-          "name": "folder",
+        "owner": {
+          "name": "owner",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -215,7 +208,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "Docs_owner_Users_email_fk": {
+          "name": "Docs_owner_Users_email_fk",
+          "tableFrom": "Docs",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "owner"
+          ],
+          "columnsTo": [
+            "email"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -224,7 +231,7 @@
       "columns": {
         "recipient": {
           "name": "recipient",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
