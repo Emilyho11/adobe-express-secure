@@ -15,6 +15,7 @@ import { Theme } from "@swc-react/theme";
 import { Accordion, AccordionItem } from "@swc-react/accordion";
 
 import Watermarker from "./Watermarker/Watermarker";
+import FactChecker from "./FactChecker/FactChecker";
 
 const App = ({
   addOnUISdk,
@@ -43,7 +44,13 @@ const App = ({
             <Watermarker addOnUISdk={addOnUISdk}></Watermarker>
           </AccordionItem>
           <AccordionItem label="Secure Upload">
-            <p>Section 3 content</p>
+            <p>Section 2 content</p>
+          </AccordionItem>
+          <AccordionItem label="Fact Checker">
+            <FactChecker
+              addOnUISdk={addOnUISdk}
+              sandboxProxy={sandboxProxy}
+            ></FactChecker>
           </AccordionItem>
         </Accordion>
       </div>

@@ -1,5 +1,6 @@
 import addOnSandboxSdk from "add-on-sdk-document-sandbox";
-import { editor } from "express-document-sdk";
+// import { editor, TextNode } from "express-document-sdk";
+
 import { DocumentSandboxApi } from "../models/DocumentSandboxApi";
 
 // Get the document sandbox runtime.
@@ -24,6 +25,19 @@ function start(): void {
     //   // Add the rectangle to the document.
     //   const insertionParent = editor.context.insertionParent;
     //   insertionParent.children.append(rectangle);
+    // },
+    // getAllText: async () => {
+    //   let text = "";
+    //   const pages = editor.documentRoot.pages;
+    //   for (const page of pages) {
+    //     console.log("page: ", page);
+    //     for (const child of page.allChildren) {
+    //       if (child.type === "Text") {
+    //         text += (child as TextNode).fullContent.text;
+    //       }
+    //     }
+    //   }
+    //   return text;
     // },
   };
 
