@@ -2,7 +2,7 @@ To start the virtual environment and run Streamlit, use the following commands:
 
 ```sh
 # Create a virtual environment
-python -m venv venv
+python -m venv .venv
 
 # Activate the virtual environment
 # On Windows

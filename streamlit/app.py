@@ -20,7 +20,7 @@ mock_data = [
         "id": "14",
         "type": "add_viewer",
         "user_name": "alex",
-        "time_stamp": int(datetime(2024, 9, 2).timestamp()),
+        "time_stamp": int(datetime(2024, 9, 3).timestamp()),
         "value": "mike",
         "lon": -118.243683,
         "lat": 34.052235,
@@ -38,7 +38,7 @@ mock_data = [
         "id": "16",
         "type": "update_file",
         "user_name": "john",
-        "time_stamp": int(datetime(2024, 9, 4).timestamp()),
+        "time_stamp": int(datetime(2024, 9, 3).timestamp()),
         "lon": -74.0060,
         "lat": 40.7128,
     },
@@ -54,10 +54,10 @@ mock_data = [
         "id": "18",
         "type": "add_viewer",
         "user_name": "lisa",
-        "time_stamp": int(datetime(2024, 9, 6).timestamp()),
+        "time_stamp": int(datetime(2024, 9, 5).timestamp()),
         "value": "john",
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "19",
@@ -73,16 +73,16 @@ mock_data = [
         "type": "update_file",
         "user_name": "lisa",
         "time_stamp": int(datetime(2024, 9, 8).timestamp()),
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "1",
         "type": "page_view",
         "user_name": "gigi",
-        "time_stamp": int(datetime(2024, 9, 9).timestamp()),
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "time_stamp": int(datetime(2024, 9, 10).timestamp()),
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "2",
@@ -90,23 +90,23 @@ mock_data = [
         "user_name": "gigi",
         "time_stamp": int(datetime(2024, 9, 10).timestamp()),
         "value": "emily",
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "3",
         "type": "remove_viewer",
         "user_name": "gigi",
-        "time_stamp": int(datetime(2024, 9, 11).timestamp()),
+        "time_stamp": int(datetime(2024, 9, 10).timestamp()),
         "value": "emily",
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "5",
         "type": "page_view",
         "user_name": "alex",
-        "time_stamp": int(datetime(2024, 9, 12).timestamp()),
+        "time_stamp": int(datetime(2024, 9, 10).timestamp()),
         "lon": -118.243683,
         "lat": 34.052235,
     },
@@ -116,8 +116,8 @@ mock_data = [
         "user_name": "gigi",
         "time_stamp": int(datetime(2024, 9, 13).timestamp()),
         "value": "john",
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "7",
@@ -125,8 +125,8 @@ mock_data = [
         "user_name": "gigi",
         "time_stamp": int(datetime(2024, 9, 14).timestamp()),
         "value": "john",
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "8",
@@ -140,7 +140,7 @@ mock_data = [
         "id": "9",
         "type": "page_view",
         "user_name": "sam",
-        "time_stamp": int(datetime(2024, 9, 16).timestamp()),
+        "time_stamp": int(datetime(2024, 9, 17).timestamp()),
         "lon": -122.419418,
         "lat": 37.774929,
     },
@@ -150,8 +150,8 @@ mock_data = [
         "user_name": "gigi",
         "time_stamp": int(datetime(2024, 9, 17).timestamp()),
         "value": "lisa",
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "11",
@@ -159,8 +159,8 @@ mock_data = [
         "user_name": "gigi",
         "time_stamp": int(datetime(2024, 9, 18).timestamp()),
         "value": "lisa",
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "12",
@@ -175,8 +175,8 @@ mock_data = [
         "type": "update_file",
         "user_name": "gigi",
         "time_stamp": int(datetime(2024, 9, 20).timestamp()),
-        "lon": -73.935242,
-        "lat": 40.730610,
+        "lon": -79.3832,
+        "lat": 43.6532,
     },
     {
         "id": "21",
@@ -349,15 +349,16 @@ selected_date_range = st.slider(
 # Show leaderboards
 col3, col4 = st.columns(2)
 
-# Show count of events in the selected date range
-st.metric("Events in the selected date range", len(orig_df))
-st.write("The following events occurred within the selected date range")
-
 # Filter df based on selected date range
 df = orig_df[
     (orig_df["time_stamp"] >= selected_date_range[0])
     & (orig_df["time_stamp"] <= selected_date_range[1])
 ]
+
+# Show count of events in the selected date range
+st.metric("Events in the selected date range", len(df))
+st.write("The following events occurred within the selected date range")
+
 
 st.write(df)
 
@@ -380,3 +381,12 @@ selected_top_users = df["user_name"].value_counts().head(5)
 with col4:
     st.write("Top 5 users")
     st.write(selected_top_users)
+
+st.write(
+    """ <style>
+    .stDataFrame {
+    width: 100%;
+    }
+         </style>""",
+    unsafe_allow_html=True,
+)
