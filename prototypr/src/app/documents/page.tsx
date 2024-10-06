@@ -37,14 +37,15 @@ const Page = () => {
 				const response: Response = await axios.get("/api/documents");
 				const accId = "ff7c031cc454a7c324e821d0f6fa850d";
 				const bucket = `https://${accId}.r2.cloudflarestorage.com/https-secsuite-docs/`;
-				const docs = response.data.map((doc, i) => {
-					return {
-						url: bucket + doc.Key,
-						name: doc.Key,
-						id: i,
-					};
-				});
-				console.log(docs);
+				// const docs = response.data.map((doc, i) => {
+				// 	return {
+				// 		url: bucket + doc.Key,
+				// 		name: doc.Key,
+				// 		id: i,
+				// 	};
+				// });
+				// console.log(docs)
+				const docs = response.data;
 				setDocuments(docs);
 			} catch (error) {
 				console.error("Failed to get documents", error);
@@ -76,8 +77,6 @@ const Page = () => {
 			const res = await axios.post("/api/documents/upload", {
 				filename: file.name,
 			});
-
-			console.log(res.data);
 
 			if (res.data) {
 				const { url }: { url: string } = res.data;
