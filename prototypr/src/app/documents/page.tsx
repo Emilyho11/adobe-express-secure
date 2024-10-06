@@ -20,16 +20,20 @@ const Page = () => {
 	const [uploading, setUploading] = useState(false);
 	const [message, setMessage] = useState("");
 	const [documents, setDocuments] = useState<
-		{ id: string; name: string; url: string }[]
+		{ id: number; name: string; url: string }[]
 	>([]);
 
 	const [selectedDocument, setSelectedDocument] = useState<string | null>();
+
+	interface Response {
+		data: { Key: string }[];
+	}
 
 	// Get all documents
 	useEffect(() => {
 		const fetchDocuments = async () => {
 			try {
-				const response = await axios.get("/api/documents");
+				const response: Response = await axios.get("/api/documents");
 				const accId = "ff7c031cc454a7c324e821d0f6fa850d";
 				const bucket = `https://${accId}.r2.cloudflarestorage.com/https-secsuite-docs/`;
 				const docs = response.data.map((doc, i) => {

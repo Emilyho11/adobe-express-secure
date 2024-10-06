@@ -8,13 +8,16 @@
 		"start": "next start",
 		"lint": "next lint --fix",
 		"pages:build": "npx @cloudflare/next-on-pages",
-		"preview": "npm run pages:build && wrangler pages dev",
+		"preview": "npm run lint && npm run pages:build && wrangler pages dev",
 		"deploy": "npm run pages:build && wrangler pages deploy",
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate:local": "wrangler d1 migrations apply https-secsuite-db --local",
 		"db:migrate:preview": "wrangler d1 migrations apply --env preview https-secsuite-db --remote",
-		"db:migrate:prod": "wrangler d1 migrations apply https-secsuite-db --remote"
+		"db:migrate:prod": "wrangler d1 migrations apply https-secsuite-db --remote",
+		"db:studio:local": "cross-env DB_LOCAL_PATH=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit studio",
+		"db:studio:preview": "cross-env NODE_ENV='preview' drizzle-kit studio",
+		"db:studio:prod": "drizzle-kit studio"
 	},
 	"dependencies": {
 		"@auth0/nextjs-auth0": "^3.5.0",
@@ -46,6 +49,7 @@
 		"@types/node": "^20",
 		"@types/react": "^18",
 		"@types/react-dom": "^18",
+		"cross-env": "^7.0.3",
 		"drizzle-kit": "^0.24.2",
 		"eslint": "^8",
 		"eslint-config-next": "14.2.5",

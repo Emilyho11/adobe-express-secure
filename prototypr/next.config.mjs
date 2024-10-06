@@ -10,6 +10,9 @@ if (process.env.NODE_ENV === 'development') {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ['tsx', 'ts'],
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;

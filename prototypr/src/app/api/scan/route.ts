@@ -12,9 +12,16 @@ const openai = new OpenAI({
 
 const model = "gpt-4o";
 
+interface Scan {
+	text: string;
+}
+
+export const runtime = "edge";
+
 export async function POST(request: NextRequest) {
 	console.log("HEJHEE");
-	const { text } = await request.json();
+	const req: Scan = await request.json();
+	const text = req.text;
 
 	if (!text) {
 		return NextResponse.json(
