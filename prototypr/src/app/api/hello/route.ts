@@ -1,22 +1,15 @@
-import type { NextRequest } from 'next/server'
-import { getRequestContext } from '@cloudflare/next-on-pages'
+import { NextResponse, type NextRequest } from "next/server";
+import { drizzle } from "drizzle-orm/d1";
 
-export const runtime = 'edge'
+interface Env {
+	DB: D1Database;
+}
 
-export async function GET(request: NextRequest) {
-  let responseText = 'Hello World'
+export const runtime = "edge";
 
-  // In the edge runtime you can use Bindings that are available in your application
-  // (for more details see:
-  //    - https://developers.cloudflare.com/pages/framework-guides/deploy-a-nextjs-site/#use-bindings-in-your-nextjs-application
-  //    - https://developers.cloudflare.com/pages/functions/bindings/
-  // )
-  //
-  // KV Example:
-  // const myKv = getRequestContext().env.MY_KV_NAMESPACE
-  // await myKv.put('suffix', ' from a KV store!')
-  // const suffix = await myKv.get('suffix')
-  // responseText += suffix
-
-  return new Response(responseText)
+export async function GET(request: NextRequest, env: Env) {
+	const db = drizzle(env.DB);
+	console.log("hello");
+	const data = await db.select().from(users).all();
+	return NextResponse.json(data);
 }
