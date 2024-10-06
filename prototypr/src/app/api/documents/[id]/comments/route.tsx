@@ -1,15 +1,17 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { useParams } from "next/navigation";
+import { NextResponse, type NextRequest } from "next/server";
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-	const params = useParams();
+export async function GET(
+	req: NextRequest,
+	{ params }: { params: { id: string } }
+) {
 	const { id } = params;
 	if (!id) {
-		res.status(400).json({ error: "ID is required" });
-		return;
+		return NextResponse.json({ error: "ID is required" }, { status: 400 });
 	}
 
-	res.status(200).json({
+	// Check if the user owns the document
+
+	return NextResponse.json({
 		message: `Fetching comments for document with ID: ${id}`,
 	});
 }

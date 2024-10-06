@@ -24,6 +24,7 @@ const Page = () => {
 	>([]);
 
 	const [selectedDocument, setSelectedDocument] = useState<string | null>();
+	const [updatingDocument, setUpdatingDocument] = useState<string | null>();
 
 	// Get all documents
 	useEffect(() => {
@@ -106,6 +107,53 @@ const Page = () => {
 		}
 	};
 
+	const handleUpdate = async () => {
+		if (!file || !updatingDocument) {
+			setMessage("No file selected for update");
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append("file", file);
+		try {
+			setUploading(true);
+			const res = await axios.post("/api/documents/update", {
+				filename: updatingDocument,
+			});
+
+			if (res.data) {
+				const { url }: { url: string } = res.data;
+				const uploadRes = await fetch(url, {
+					method: "PUT",
+					body: file,
+				});
+				console.log(uploadRes);
+				if (uploadRes.ok) {
+					setMessage("File Update Successful!");
+				} else {
+					setMessage("File Update Failed");
+				}
+			}
+
+			setMessage("File updated successfully");
+			// Clear out form
+			setFile(null);
+			setFileUrl(null);
+			setDocuments((prevDocuments) =>
+				prevDocuments.map((doc) =>
+					doc.name === updatingDocument
+						? { ...doc, name: file.name, url: res.data.url }
+						: doc
+				)
+			);
+		} catch (error) {
+			setMessage("File update failed");
+		} finally {
+			setUploading(false);
+			setUpdatingDocument(null);
+		}
+	};
+
 	const previewFile = async (docname: string) => {
 		try {
 			const response = await axios.post(
@@ -152,6 +200,7 @@ const Page = () => {
 			);
 
 			// Create a blob from the response data
+
 			const blob = new Blob([response.data], {
 				type: response.headers["content-type"],
 			});
@@ -252,7 +301,9 @@ const Page = () => {
 						)}
 					</div>
 				</div>
-				<h1 className="mb-10 text-2xl">View All Uploads</h1>
+				<h1 className="mt-10 mb-5 text-2xl text-center">
+					View All Uploads
+				</h1>
 				<div className="w-full flex flex-wrap gap-4 justify-center">
 					{documents.map((document_item) => {
 						const extension = document_item.name.split(".").pop();
@@ -352,6 +403,7 @@ const Page = () => {
 							<Button
 								className="flex gap-4"
 								variant={"secondary"}
+								onClick={handleUpdate}
 							>
 								<LucidePencil /> Update
 							</Button>
