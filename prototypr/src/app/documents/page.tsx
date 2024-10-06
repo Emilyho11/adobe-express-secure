@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import Image from "next/image";
+import { get } from "http";
 
 const Page = () => {
 	const [file, setFile] = useState<File | null>(null);
@@ -22,8 +23,12 @@ const Page = () => {
 	const [documents, setDocuments] = useState<
 		{ id: number; name: string; url: string }[]
 	>([]);
-
+	const [comments, setComments] = useState<any[]>([]);
+	const [newComment, setNewComment] = useState("");
+	const [showCommentBox, setShowCommentBox] = useState(false);
+	const [isSelectedDocument, setIsSelectedDocument] = useState(false);
 	const [selectedDocument, setSelectedDocument] = useState<string | null>();
+	const [selectedDocumentName, setSelectedDocumentName] = useState<string | null>();
 	const [updatingDocument, setUpdatingDocument] = useState<string | null>();
 
 	interface Response {
@@ -35,7 +40,7 @@ const Page = () => {
 		const fetchDocuments = async () => {
 			try {
 				const response: Response = await axios.get("/api/documents");
-				const accId = "ff7c031cc454a7c324e821d0f6fa850d";
+				const accId = "ff7c031cc454a7c324de821d0f6fa850d";
 				const bucket = `https://${accId}.r2.cloudflarestorage.com/https-secsuite-docs/`;
 				const docs = response.data.map((doc, i) => {
 					return {
@@ -45,14 +50,26 @@ const Page = () => {
 					};
 				});
 				console.log(docs);
-				setDocuments(docs);
-			} catch (error) {
-				console.error("Failed to get documents", error);
-			}
-		};
+                setDocuments(docs);
+            } catch (error) {
+                console.error("Failed to get documents", error);
+            }
+        };
 
+		fetchComments();
 		fetchDocuments();
 	}, []);
+
+	const fetchComments = async () => {
+		if (!selectedDocument) return;
+		try {
+			const response = await axios.get(`/api/comments?docId=${selectedDocument}`);
+			setComments(response.data);
+			console.log("comments", response.data);
+		} catch (error) {
+			console.error("Failed to get comments", error);
+		}
+	};
 
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const selectedFile = event.target.files?.[0];
@@ -158,6 +175,33 @@ const Page = () => {
 		}
 	};
 
+	const handleAddComment = async () => {
+        if (!newComment.trim()) {
+            alert("Comment cannot be empty");
+            return;
+        }
+
+		if (!selectedDocument) {
+			alert("No document selected");
+			return;
+		}
+
+        try {
+            const response = await axios.post("/api/comments", {
+                docId: selectedDocument,
+                text: newComment,
+            });
+            const newCommentData = response.data;
+            setComments(newCommentData)
+            setNewComment('');
+            setShowCommentBox(false);
+        } catch (error) {
+            console.error("Error adding comment:", error);
+            alert("Failed to add comment");
+        }
+    };
+
+
 	const previewFile = async (docname: string) => {
 		try {
 			const response = await axios.post(
@@ -182,6 +226,8 @@ const Page = () => {
 			if (preview) {
 				preview.src = url;
 			}
+
+			fetchComments();
 		} catch (error) {
 			console.error("Error downloading file:", error);
 			// Handle error appropriately - maybe show a notification to the user
@@ -246,7 +292,7 @@ const Page = () => {
 
 	const handleDownload = () => {
 		if (selectedDocument) {
-			downloadFile(selectedDocument);
+			selectedDocumentName && downloadFile(selectedDocumentName);
 		} else {
 			console.error("No document selected");
 		}
@@ -342,9 +388,10 @@ const Page = () => {
 								className=""
 								onClick={() => {
 									if (
-										selectedDocument === document_item.name
+										selectedDocumentName === document_item.name
 									) {
 										setSelectedDocument(null);
+										setSelectedDocumentName(null);
 										// Clear the preview
 										const preview = document.getElementById(
 											"preview"
@@ -354,8 +401,10 @@ const Page = () => {
 										return;
 									}
 
-									setSelectedDocument(document_item.name);
+									setSelectedDocument(document_item.id.toString());
+									setSelectedDocumentName(document_item.name);
 									// downloadFile(document.name)
+									setIsSelectedDocument(true);
 									previewFile(document_item.name);
 								}}
 							>
@@ -364,7 +413,7 @@ const Page = () => {
 									// className="min-w-[15vw]  mb-5 p-5 relative"
 									className={
 										"w-full p-2 px-4 " +
-										(selectedDocument === document_item.name
+										(selectedDocumentName === document_item.name
 											? "bg-blue-300"
 											: "")
 									}
@@ -395,8 +444,8 @@ const Page = () => {
 						defaultSize={40}
 						className="items-center flex flex-col justify-center gap-2 "
 					>
-						<h1>{selectedDocument}</h1>
-						<div className="flex gap-4">
+						<h1>{selectedDocumentName}</h1>
+						<div className="flex gap-4 flex-wrap place-content-center">
 							<Button
 								className="flex gap-4"
 								variant={"secondary"}
@@ -411,13 +460,39 @@ const Page = () => {
 							>
 								<LucidePencil /> Update
 							</Button>
-							<Button
-								className="flex gap-4"
-								variant={"secondary"}
-							>
-								<LucideMessageCircle /> Comments
-							</Button>
+							<div className="flex gap-4">
+								<Button
+									className="flex gap-4"
+									variant={"secondary"}
+									onClick={() => setShowCommentBox(!showCommentBox)}
+								>
+									<LucideMessageCircle /> Add Comment
+								</Button>
+							</div>
+						{showCommentBox && (
+							<div className="comment-section text-black flex gap-2">
+								<input
+									type="text"
+									value={newComment}
+									onChange={(e) => setNewComment(e.target.value)}
+									placeholder="Write your comment"
+									className="w-full pl-2 rounded-md text-black"
+								/>
+								<Button onClick={handleAddComment} className="bg-red-500">Submit</Button>
+							</div>
+						)}
+						
+					</div>
+					{isSelectedDocument && (
+						<div>
+							<h3 className="text-white pt-5">Comments</h3>
+							<ul className="text-white">
+								{comments.map((comment, index) => (
+									<li key={index}>{comment.text}</li>
+								))}
+							</ul>
 						</div>
+					)}
 					</Panel>
 				</PanelGroup>
 			</Panel>
