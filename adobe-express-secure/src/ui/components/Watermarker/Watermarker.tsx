@@ -29,7 +29,6 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
       const { width, height } = pages[0].size;
       setWidth(width);
       setHeight(height);
-      console.log("dimensions : ", width, height);
     }
     updateDimensions();
   }, []);
@@ -43,6 +42,14 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
     canvas.toBlob((blob) => {
       addOnUISdk.app.document.addImage(blob);
     });
+  };
+
+  const toggleBackgroundCanvasVisibility = () => {
+    const backgroundCanvas = document.getElementById(
+      "background-canvas"
+    ) as HTMLCanvasElement;
+    backgroundCanvas.style.visibility =
+      backgroundCanvas.style.visibility === "hidden" ? "visible" : "hidden";
   };
 
   return (
@@ -140,11 +147,19 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
 
       <p>Step 4: Review and apply the watermark.</p>
       <Button
+        variant="primary"
+        onClick={toggleBackgroundCanvasVisibility}
+        disabled={!file}
+      >
+        Toggle Page Preview
+      </Button>
+      <Button
         variant="accent"
         onClick={() => {
           console.log("clicked");
           addWatermarkToDocument();
         }}
+        style={{ marginTop: "0.5rem" }}
         disabled={!file}
       >
         Add Watermark
@@ -161,6 +176,7 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
           yGap={yGap}
           opacity={opacity}
           randomness={useRandomness ? randomness : 0}
+          addOnUISdk={addOnUISdk}
         />
       ) : (
         <p style={{ fontStyle: "italic" }}>

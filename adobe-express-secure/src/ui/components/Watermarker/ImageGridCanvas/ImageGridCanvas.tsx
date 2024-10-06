@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import "./ImageGridCanvas.css";
 
+import { RenditionFormat } from "https://new.express.adobe.com/static/add-on-sdk/sdk.js";
+
 interface ImageGridCanvasProps {
   imageFile: File;
   width: number;
@@ -11,6 +13,7 @@ interface ImageGridCanvasProps {
   yGap: number;
   opacity: number;
   randomness: number; // 0 is no randomness, 1 is max randomness, min is 0.1
+  addOnUISdk: any;
 }
 
 const ImageGridCanvas: React.FC<ImageGridCanvasProps> = ({
@@ -23,8 +26,10 @@ const ImageGridCanvas: React.FC<ImageGridCanvasProps> = ({
   yGap,
   opacity,
   randomness,
+  addOnUISdk,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const backgroundCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -64,6 +69,24 @@ const ImageGridCanvas: React.FC<ImageGridCanvasProps> = ({
     randomness,
   ]);
 
+  // set up image behind canvas
+  useEffect(() => {
+    const backgroundCanvas = backgroundCanvasRef.current;
+    const backgroundCtx = backgroundCanvas?.getContext("2d");
+
+    if (backgroundCanvas && backgroundCtx) {
+      backgroundCanvas.width = width;
+      backgroundCanvas.height = height;
+      getImageBehindCanvas().then((imageSrc) => {
+        const img = new Image();
+        img.src = imageSrc;
+        img.onload = () => {
+          backgroundCtx.drawImage(img, 0, 0, width, height);
+        };
+      });
+    }
+  }, []);
+
   function transformCanvasWithRandom(ctx, width, height, opacity) {
     const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
@@ -83,7 +106,32 @@ const ImageGridCanvas: React.FC<ImageGridCanvasProps> = ({
     ctx.putImageData(imageData, 0, 0);
   }
 
-  return <canvas id="preview-canvas" ref={canvasRef}></canvas>;
+  async function getImageBehindCanvas() {
+    const response = await addOnUISdk.app.document.createRenditions({
+      range: addOnUISdk.constants.Range.currentPage,
+      format: RenditionFormat.png,
+    });
+
+    return URL.createObjectURL(response[0].blob);
+  }
+
+  return (
+    <div
+      className="container wrapper"
+      style={{ width: "100%", height: "auto" }}
+    >
+      <canvas
+        id="background-canvas"
+        ref={backgroundCanvasRef}
+        style={{ position: "unset", zIndex: 1, width: "100%", height: "auto" }}
+      ></canvas>
+      <canvas
+        id="preview-canvas"
+        ref={canvasRef}
+        style={{ zIndex: 2, width: "100%", height: "auto" }}
+      ></canvas>
+    </div>
+  );
 };
 
 export default ImageGridCanvas;

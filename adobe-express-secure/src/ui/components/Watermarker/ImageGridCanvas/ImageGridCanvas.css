@@ -1,4 +1,17 @@
-#preview-canvas {
+#preview-canvas,
+#background-canvas {
   margin-top: 1rem;
   border: 2px dashed #ccc;
+}
+
+.wrapper {
+  position: relative;
+}
+
+.wrapper canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
