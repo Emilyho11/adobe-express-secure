@@ -26,7 +26,7 @@ const Navbar = () => {
 		},
 		shared: {
 			name: "Shared",
-			href: "/shared",
+			href: "/documents/shared",
 			icon: <LucideShare />,
 		},
 
@@ -42,9 +42,6 @@ const Navbar = () => {
 				className="w-[17vw] h-screen  bg-black p-4 py-16 relative"
 				id="navpanel"
 			>
-				<div className="absolute right-0" onClick={() => {}}>
-					<p className="mx-4 top-0">{"<"} Hide</p>
-				</div>
 				<br />
 				<div className="my-4 flex gap-4 items-center">
 					{user ? (

@@ -10,7 +10,11 @@
 		"pages:build": "npx @cloudflare/next-on-pages",
 		"preview": "npm run pages:build && wrangler pages dev",
 		"deploy": "npm run pages:build && wrangler pages deploy",
-		"cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts"
+		"cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate:local": "wrangler d1 migrations apply https-secsuite-db --local",
+		"db:migrate:preview": "wrangler d1 migrations apply --env preview https-secsuite-db --remote",
+		"db:migrate:prod": "wrangler d1 migrations apply https-secsuite-db --remote"
 	},
 	"dependencies": {
 		"@auth0/nextjs-auth0": "^3.5.0",

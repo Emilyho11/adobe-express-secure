@@ -7,6 +7,7 @@ import {
 	LucideFileImage,
 	LucideFileQuestion,
 	LucideFileText,
+	LucideMessageCircle,
 	LucidePencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -190,6 +191,14 @@ const Page = () => {
 		}
 	};
 
+	const handleDownload = () => {
+		if (selectedDocument) {
+			downloadFile(selectedDocument);
+		} else {
+			console.error("No document selected");
+		}
+	};
+
 	return (
 		<PanelGroup direction="horizontal">
 			<Panel defaultSize={50} className="h-screen p-20 pr-40 flex-1">
@@ -243,12 +252,12 @@ const Page = () => {
 						)}
 					</div>
 				</div>
-				<h2 style={{ marginBottom: "10px" }}>View All Uploads</h2>
+				<h1 className="mb-10 text-2xl">View All Uploads</h1>
 				<div className="w-full flex flex-wrap gap-4 justify-center">
-					{documents.map((document) => {
-						const extension = document.name.split(".").pop();
+					{documents.map((document_item) => {
+						const extension = document_item.name.split(".").pop();
 
-						const fileName = document.name
+						const fileName = document_item.name
 							.split(".")
 							.slice(0, -1)
 							.join(".");
@@ -271,20 +280,39 @@ const Page = () => {
 								icon = <LucideFileQuestion />;
 								break;
 						}
+
 						return (
 							<button
-								key={document.name}
+								key={document_item.name}
 								className=""
 								onClick={() => {
-									setSelectedDocument(document.name);
+									if (
+										selectedDocument === document_item.name
+									) {
+										setSelectedDocument(null);
+										// Clear the preview
+										const preview = document.getElementById(
+											"preview"
+										) as HTMLImageElement;
+										preview.src = "";
+
+										return;
+									}
+
+									setSelectedDocument(document_item.name);
 									// downloadFile(document.name)
-									previewFile(document.name);
+									previewFile(document_item.name);
 								}}
 							>
 								<Card
-									key={document.id}
+									key={document_item.id}
 									// className="min-w-[15vw]  mb-5 p-5 relative"
-									className="w-full p-2 px-4"
+									className={
+										"w-full p-2 px-4 " +
+										(selectedDocument === document_item.name
+											? "bg-blue-300"
+											: "")
+									}
 								>
 									<div className="flex gap-4 item-center">
 										<div className="border-r-2 border-gray-400 pr-4">
@@ -303,16 +331,39 @@ const Page = () => {
 			</Panel>
 			<PanelResizeHandle />
 			<Panel defaultSize={50} className=" bg-black flex flex-col">
-				<iframe id="preview" src="" className="w-full h-[80vh]" />
-				<h1>{selectedDocument}</h1>
-				<div className="items-center flex justify-center gap-2 ">
-					<Button className="flex gap-4" variant={"secondary"}>
-						<LucideDownload /> Download
-					</Button>
-					<Button className="flex gap-4" variant={"secondary"}>
-						<LucidePencil /> Update
-					</Button>
-				</div>
+				<PanelGroup direction="vertical">
+					<Panel defaultSize={70} maxSize={85} className="w-full">
+						<iframe id="preview" src="" className="w-full h-full" />
+					</Panel>
+					<PanelResizeHandle />
+					<Panel
+						defaultSize={40}
+						className="items-center flex flex-col justify-center gap-2 "
+					>
+						<h1>{selectedDocument}</h1>
+						<div className="flex gap-4">
+							<Button
+								className="flex gap-4"
+								variant={"secondary"}
+								onClick={handleDownload}
+							>
+								<LucideDownload /> Download
+							</Button>
+							<Button
+								className="flex gap-4"
+								variant={"secondary"}
+							>
+								<LucidePencil /> Update
+							</Button>
+							<Button
+								className="flex gap-4"
+								variant={"secondary"}
+							>
+								<LucideMessageCircle /> Comments
+							</Button>
+						</div>
+					</Panel>
+				</PanelGroup>
 			</Panel>
 		</PanelGroup>
 	);
