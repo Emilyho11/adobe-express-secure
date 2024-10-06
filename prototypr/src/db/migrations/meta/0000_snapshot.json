@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "dcc1af8f-56cb-431d-a563-d1d663fcd482",
+  "id": "f663b8aa-f601-4501-9110-c48732bae7c4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "Audit": {
@@ -199,6 +199,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "folder": {
+          "name": "folder",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "owner": {
           "name": "owner",
           "type": "text",
@@ -246,19 +253,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Shared_recipient_Users_email_fk": {
-          "name": "Shared_recipient_Users_email_fk",
-          "tableFrom": "Shared",
-          "tableTo": "Users",
-          "columnsFrom": [
-            "recipient"
-          ],
-          "columnsTo": [
-            "email"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "Shared_docId_Docs_docId_fk": {
           "name": "Shared_docId_Docs_docId_fk",
           "tableFrom": "Shared",

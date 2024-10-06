@@ -254,7 +254,7 @@ const Page = () => {
 
 	return (
 		<PanelGroup direction="horizontal">
-			<Panel defaultSize={50} className="h-screen p-20 pr-40 flex-1">
+			<Panel defaultSize={50} className="h-screen p-20 flex-1">
 				<div
 					style={{ textAlign: "center", marginBottom: "20px" }}
 					className="flex items-center justify-evenly p-4 rounded-md"
@@ -272,13 +272,16 @@ const Page = () => {
 
 					<div
 						style={{
-							display: message || fileUrl ? "block" : "none",
+							display:
+								message.length > 0 || fileUrl
+									? "block"
+									: "none",
 						}}
 					>
 						{message && <p>{message}</p>}
 						{fileUrl && (
 							<div className="mt-10 items-center flex justify-center ">
-								{file?.type.startsWith("image/") ? (
+								{file?.type.startsWith("image/") && (
 									<div className="">
 										<p>Preview</p>
 										<Image
@@ -294,12 +297,6 @@ const Page = () => {
 											}}
 										/>
 									</div>
-								) : (
-									<>
-										<a href={fileUrl} download={file?.name}>
-											Download
-										</a>
-									</>
 								)}
 							</div>
 						)}
@@ -310,6 +307,7 @@ const Page = () => {
 				</h1>
 				<div className="w-full flex flex-wrap gap-4 justify-center">
 					{documents.map((document_item) => {
+						if (!document_item || !document_item.name) return;
 						const extension = document_item.name.split(".").pop();
 
 						const fileName = document_item.name
@@ -365,7 +363,7 @@ const Page = () => {
 									className={
 										"w-full p-2 px-4 " +
 										(selectedDocument === document_item.name
-											? "bg-blue-300"
+											? "!bg-blue-300"
 											: "")
 									}
 								>
@@ -387,8 +385,16 @@ const Page = () => {
 			<PanelResizeHandle />
 			<Panel defaultSize={50} className=" bg-black flex flex-col">
 				<PanelGroup direction="vertical">
-					<Panel defaultSize={70} maxSize={85} className="w-full">
-						<iframe id="preview" src="" className="w-full h-full" />
+					<Panel
+						defaultSize={70}
+						maxSize={85}
+						className="w-full border-b-2 border-red-800"
+					>
+						<iframe
+							id="preview"
+							src=""
+							className="w-full h-full block ml-auto mr-auto"
+						/>
 					</Panel>
 					<PanelResizeHandle />
 					<Panel

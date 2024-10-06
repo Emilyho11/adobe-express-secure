@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("Users", {
-	email: text("email").primaryKey()
+	email: text("email").primaryKey(),
 });
 
 // Types
@@ -14,7 +14,7 @@ export const docs = sqliteTable("Docs", {
 	name: text("name").notNull(),
 	// should default to 1
 	version: integer("version").notNull(),
-	//  prefix location is just sanitized email
+	folder: text("folder").notNull(),
 	owner: text("owner").references(() => users.email),
 });
 
@@ -31,7 +31,7 @@ export const audit = sqliteTable("Audit", {
 });
 
 export const shared = sqliteTable("Shared", {
-	recipient: text("recipient").references(() => users.email),
+	recipient: text("recipient"),
 	docId: integer("docId").references(() => docs.docId),
 });
 

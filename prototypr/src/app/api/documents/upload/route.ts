@@ -11,7 +11,10 @@ export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
 	try {
-		const { filename, versionNum }: { filename: string, versionNum: number } = await request.json();
+		const {
+			filename,
+			versionNum,
+		}: { filename: string; versionNum: number } = await request.json();
 		const session = await getSession();
 
 		if (!session?.user?.email) {
@@ -19,23 +22,14 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Sanitize email for use in path
-		const sanitizedEmail = session.user.email.replace(/[^a-zA-Z0-9-_@.]/g, "_");
+		const sanitizedEmail = session.user.email.replace(
+			/[^a-zA-Z0-9-_@.]/g,
+			"_"
+		);
 		const prefixedFilename = `${sanitizedEmail}/${filename}`;
 		const context = getRequestContext();
 		const db = drizzle(context.env.DB);
 
-		console.log("prefixedFilename", prefixedFilename);
-		// Insert document record
-		const newDoc = await db.insert(docs)
-			.values({
-				name: filename,
-				version: versionNum || 1, // Default to version 1 for new documents
-				owner: session.user.email
-			})
-			.returning()
-			.get();
-			
-			
 		const url = await getSignedUrl(
 			S3,
 			new PutObjectCommand({
@@ -43,13 +37,25 @@ export async function POST(request: NextRequest) {
 				Key: prefixedFilename,
 				// Optionally add metadata to track file ownership
 				Metadata: {
-					owner: sanitizedEmail
-				}
+					owner: sanitizedEmail,
+				},
 			}),
 			{
 				expiresIn: 600,
 			}
 		);
+
+		// Insert document record
+		const newDoc = await db
+			.insert(docs)
+			.values({
+				name: filename,
+				version: versionNum || 1, // Default to version 1 for new documents
+				owner: session.user.email,
+				folder: prefixedFilename,
+			})
+			.returning()
+			.get();
 
 		return Response.json({ url, prefixedFilename });
 	} catch (error: any) {
