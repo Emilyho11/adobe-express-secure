@@ -20,16 +20,21 @@ const Page = () => {
 	const [uploading, setUploading] = useState(false);
 	const [message, setMessage] = useState("");
 	const [documents, setDocuments] = useState<
-		{ id: string; name: string; url: string }[]
+		{ id: number; name: string; url: string }[]
 	>([]);
 
 	const [selectedDocument, setSelectedDocument] = useState<string | null>();
+	const [updatingDocument, setUpdatingDocument] = useState<string | null>();
+
+	interface Response {
+		data: { Key: string }[];
+	}
 
 	// Get all documents
 	useEffect(() => {
 		const fetchDocuments = async () => {
 			try {
-				const response = await axios.get("/api/documents");
+				const response: Response = await axios.get("/api/documents");
 				const accId = "ff7c031cc454a7c324e821d0f6fa850d";
 				const bucket = `https://${accId}.r2.cloudflarestorage.com/https-secsuite-docs/`;
 				const docs = response.data.map((doc, i) => {
@@ -106,6 +111,53 @@ const Page = () => {
 		}
 	};
 
+	const handleUpdate = async () => {
+		if (!file || !updatingDocument) {
+			setMessage("No file selected for update");
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append("file", file);
+		try {
+			setUploading(true);
+			const res = await axios.post("/api/documents/update", {
+				filename: updatingDocument,
+			});
+
+			if (res.data) {
+				const { url }: { url: string } = res.data;
+				const uploadRes = await fetch(url, {
+					method: "PUT",
+					body: file,
+				});
+				console.log(uploadRes);
+				if (uploadRes.ok) {
+					setMessage("File Update Successful!");
+				} else {
+					setMessage("File Update Failed");
+				}
+			}
+
+			setMessage("File updated successfully");
+			// Clear out form
+			setFile(null);
+			setFileUrl(null);
+			setDocuments((prevDocuments) =>
+				prevDocuments.map((doc) =>
+					doc.name === updatingDocument
+						? { ...doc, name: file.name, url: res.data.url }
+						: doc
+				)
+			);
+		} catch (error) {
+			setMessage("File update failed");
+		} finally {
+			setUploading(false);
+			setUpdatingDocument(null);
+		}
+	};
+
 	const previewFile = async (docname: string) => {
 		try {
 			const response = await axios.post(
@@ -152,6 +204,7 @@ const Page = () => {
 			);
 
 			// Create a blob from the response data
+
 			const blob = new Blob([response.data], {
 				type: response.headers["content-type"],
 			});
@@ -191,49 +244,20 @@ const Page = () => {
 		}
 	};
 
+	const handleDownload = () => {
+		if (selectedDocument) {
+			downloadFile(selectedDocument);
+		} else {
+			console.error("No document selected");
+		}
+	};
+
 	return (
 		<PanelGroup direction="horizontal">
 			<Panel defaultSize={50} className="h-screen p-20 pr-40 flex-1">
-				<div
-					style={{ textAlign: "center", marginBottom: "20px" }}
-					className="flex items-center justify-evenly p-4 rounded-md"
-				>
-					<div
-						style={{
-							display: message || fileUrl ? "block" : "none",
-						}}
-					>
-						{message && <p>{message}</p>}
-						{fileUrl && (
-							<div className="mt-10 items-center flex justify-center ">
-								{file?.type.startsWith("image/") ? (
-									<div className="">
-										<p>Preview</p>
-										<Image
-											key={fileUrl}
-											src={fileUrl}
-											width={350}
-											height={200}
-											sizes="100vw"
-											alt="Selected file"
-											style={{
-												maxWidth: "100%",
-												maxHeight: "400px",
-											}}
-										/>
-									</div>
-								) : (
-									<>
-										<a href={fileUrl} download={file?.name}>
-											Download
-										</a>
-									</>
-								)}
-							</div>
-						)}
-					</div>
-				</div>
-				<h1 style={{ marginBottom: "10px" }}>View All Uploads</h1>
+				<h1 className="mt-10 mb-5 text-2xl text-center">
+					View All Uploads
+				</h1>
 				<div className="w-full flex flex-wrap gap-4 justify-center">
 					{documents.map((document_item) => {
 						const extension = document_item.name.split(".").pop();
@@ -311,18 +335,10 @@ const Page = () => {
 				</div>
 			</Panel>
 			<PanelResizeHandle />
-			<Panel
-				defaultSize={50}
-				minSize={20}
-				className=" bg-black flex flex-col"
-			>
+			<Panel defaultSize={50} className=" bg-black flex flex-col">
 				<PanelGroup direction="vertical">
 					<Panel defaultSize={70} maxSize={85} className="w-full">
-						<iframe
-							id="preview"
-							src=""
-							className="w-full h-full border-b-2 border-gray-500"
-						/>
+						<iframe id="preview" src="" className="w-full h-full" />
 					</Panel>
 					<PanelResizeHandle />
 					<Panel
@@ -334,12 +350,14 @@ const Page = () => {
 							<Button
 								className="flex gap-4"
 								variant={"secondary"}
+								onClick={handleDownload}
 							>
 								<LucideDownload /> Download
 							</Button>
 							<Button
 								className="flex gap-4"
 								variant={"secondary"}
+								onClick={handleUpdate}
 							>
 								<LucidePencil /> Update
 							</Button>
