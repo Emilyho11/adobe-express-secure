@@ -41,15 +41,17 @@ const Navbar = () => {
 	return (
 		<>
 			<div
-				className="w-[17vw] h-screen  bg-black p-4 py-16 relative"
+				className="w-[17vw] h-screen bg-black p-4 pt-16 relative"
 				id="navpanel"
 			>
-				<br />
-				<div className="my-4 flex gap-4 items-center">
+				<div className="w-full flex items-center justify-center">
+					<Login />
+				</div>
+
+				<div className="my-4 flex items-center h-20">
 					{user ? (
 						<h3 className="text-xl">Logged in as, {user?.name}</h3>
 					) : null}
-					<Login />
 				</div>
 				<nav>
 					<ul className="space-y-4">
