@@ -3,6 +3,7 @@ import "./Watermarker.css";
 
 import { Button } from "@swc-react/button";
 import { Slider } from "@swc-react/slider";
+import { Checkbox } from "@swc-react/checkbox";
 
 import SingleFileUpload from "./SingleFileUpload/SingleFileUpload";
 import ImagePreview from "./ImagePreview/ImagePreview";
@@ -17,6 +18,7 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
   const [opacity, setOpacity] = useState<number>(0.25);
   const [xGap, setXGap] = useState<number>(50);
   const [yGap, setYGap] = useState<number>(50);
+  const [useRandomness, setUseRandomness] = useState<boolean>(false);
   const [randomness, setRandomness] = useState<number>(0.5);
 
   useEffect(() => {
@@ -57,6 +59,12 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
 
       <p>Step 3: Adjust watermark settings.</p>
       <div className="container">
+        <Checkbox
+          checked={useRandomness}
+          change={() => setUseRandomness(!useRandomness)}
+        >
+          Protect against AI watermark removal
+        </Checkbox>
         <Slider
           label="Rows"
           value={rows}
@@ -112,20 +120,22 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
           change={(value) => setYGap((value as any).target.__value)}
         ></Slider>
 
-        <Slider
-          label="Randomness"
-          value={randomness}
-          editable={true}
-          min={0.1}
-          max={1}
-          step={0.1}
-          format-options='{
+        {useRandomness && (
+          <Slider
+            label="Randomness"
+            value={randomness}
+            editable={true}
+            min={0.1}
+            max={1}
+            step={0.1}
+            format-options='{
             "style": "percent"
         }'
-          change={(value) => {
-            setRandomness((value as any).target.__value);
-          }}
-        ></Slider>
+            change={(value) => {
+              setRandomness((value as any).target.__value);
+            }}
+          ></Slider>
+        )}
       </div>
 
       <p>Step 4: Review and apply the watermark.</p>
@@ -150,7 +160,7 @@ function Watermarker({ addOnUISdk }: { addOnUISdk: any }) {
           xGap={xGap}
           yGap={yGap}
           opacity={opacity}
-          randomness={randomness}
+          randomness={useRandomness ? randomness : 0}
         />
       ) : (
         <p style={{ fontStyle: "italic" }}>

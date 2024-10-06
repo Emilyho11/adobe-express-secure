@@ -17,6 +17,7 @@
     "dependencies": {
         "@swc-react/accordion": "^0.48.1",
         "@swc-react/button": "^0.48.1",
+        "@swc-react/checkbox": "^0.48.1",
         "@swc-react/slider": "^0.48.1",
         "@swc-react/theme": "^0.48.1",
         "react": "18.2.0",
